@@ -1,0 +1,43 @@
+# see https://doc.nette.org/en/configuring
+
+parameters:
+    debugMode: '%env(APP_DEBUG_MODE)%'
+    database:
+        mysql:
+            dsn: '%env(DB_DSN)'
+            host: '%env(DB_HOST)'
+            port: '%env(DB_PORT)'
+            database: '%env(DB_DATABASE)'
+            user: '%env(DB_USER)'
+            password: '%env(DB_PASSWORD)'
+
+application:
+	errorPresenter:
+		4xx: Error:Error4xx
+		5xx: Error:Error5xx
+	mapping: App\Presentation\*\**Presenter
+
+
+database:
+	dsn: %database.mysql.dsn%
+	user: %database.mysql.user%
+	password: %database.mysql.password%
+
+
+latte:
+	strictParsing: yes
+	extensions:
+		- App\Presentation\Accessory\LatteExtension
+
+
+assets:
+	mapping:
+		default:
+			path: assets
+			# type: vite  # Uncomment to activate Vite for asset building
+
+
+di:
+	export:
+		parameters: no
+		tags: no

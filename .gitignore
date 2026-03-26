@@ -1,0 +1,9 @@
+.git
+.idea
+.docker
+.kubernetes
+log/
+node_modules/
+temp/
+vendor/
+.env

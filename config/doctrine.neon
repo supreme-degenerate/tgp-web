@@ -1,0 +1,35 @@
+extensions:
+	console: Contributte\Console\DI\ConsoleExtension(%consoleMode%)
+
+	nettrine.dbal: Nettrine\DBAL\DI\DbalExtension(%debugMode%)
+	nettrine.orm: Nettrine\ORM\DI\OrmExtension
+
+nettrine.dbal:
+	debug:
+		panel: %debugMode%
+
+	connections:
+		default:
+			driver: %database.mysql.driver%
+			host: %database.mysql.host%
+			port: %database.mysql.port%
+			dbname: %database.mysql.dbname%
+			user: %database.mysql.user%
+			password: %database.mysql.password%
+			charset:  UTF8
+			serverVersion: 15.0.0
+
+nettrine.orm:
+	managers:
+		default:
+			connection: default
+			mapping:
+				App:
+					directories: [%appDir%/Domain/Database]
+					namespace: App\Domain\Database
+		second:
+			connection: second
+			mapping:
+				App:
+					directories: [%appDir%/Domain/Database]
+					namespace: App\Domain\Database
