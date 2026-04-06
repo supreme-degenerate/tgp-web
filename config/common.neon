@@ -11,6 +11,16 @@ parameters:
             database: %env.DB_DATABASE%
             user: %env.DB_USERNAME%
             password: %env.DB_PASSWORD%
+    queue:
+        rabbitmq:
+            host: %env.QUEUE_HOST%
+            port: %env.QUEUE_PORT%
+            user: %env.QUEUE_USER%
+            password: %env.QUEUE_PASSWORD%
+    search:
+        elasticsearch:
+            host: %env.SEARCH_HOST%
+            port: %env.SEARCH_PORT%
 
 application:
 	errorPresenter:

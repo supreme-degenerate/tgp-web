@@ -1,9 +1,9 @@
 extensions:
-	console: Contributte\Console\DI\ConsoleExtension(%consoleMode%)
+    console: Contributte\Console\DI\ConsoleExtension(%consoleMode%)
 
-	nettrine.dbal: Nettrine\DBAL\DI\DbalExtension(%debugMode%)
-	nettrine.orm: Nettrine\ORM\DI\OrmExtension(%debugMode%)
-	nettrine.migrations: Nettrine\Migrations\DI\MigrationsExtension
+    nettrine.dbal: Nettrine\DBAL\DI\DbalExtension(%debugMode%)
+    nettrine.orm: Nettrine\ORM\DI\OrmExtension(%debugMode%)
+    nettrine.migrations: Nettrine\Migrations\DI\MigrationsExtension
 
 nettrine.dbal:
 	debug:

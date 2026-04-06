@@ -3,6 +3,7 @@
 namespace App\Core\Base\Presentation;
 
 use Doctrine\ORM\EntityManagerInterface;
+use LogicException;
 use Nette\Application\BadRequestException;
 use Nette\Utils\Json;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -55,9 +56,7 @@ abstract class BaseApiPresenter extends BasePresenter
 
             throw new ApiUnsupportedMethod($method);
         } catch (ApiPresenterMethodNotImplemented|BadRequestException $e) {
-            $this->sendJson([
-                'error' => $e->getMessage(),
-            ]);
+            $this->sendJsonError($e->getFile() . ': ' . $e->getMessage());
         }
     }
 
@@ -115,5 +114,21 @@ abstract class BaseApiPresenter extends BasePresenter
     protected function getData(): array
     {
         return Json::decode($this->getHttpRequest()->getRawBody(), true);
+    }
+
+    /**
+     * Sends JSON response with an error.
+     *
+     * @param string|array $error
+     *
+     * @return void
+     */
+    protected function sendJsonError(string|array $error): void
+    {
+        if (is_array($error)) {
+            $this->sendJson(['errors' => $error]);
+        }
+
+        $this->sendJson(['error' => $error]);
     }
 }

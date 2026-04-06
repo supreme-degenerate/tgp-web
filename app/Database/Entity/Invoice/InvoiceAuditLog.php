@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'invoice_audit_logs')]
 class InvoiceAuditLog extends BaseAuditLog
 {
-    #[ORM\ManyToOne(targetEntity: Invoice::class)]
+    #[ORM\ManyToOne(targetEntity: Invoice::class, inversedBy: 'logs')]
     #[ORM\JoinColumn(name: 'invoice_id', referencedColumnName: 'id')]
     protected Invoice $invoice;
 

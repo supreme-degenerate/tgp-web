@@ -5,6 +5,7 @@ services:
             dockerfile: ./.docker/Dockerfile
             args:
                 WWWGROUP: '${WWWGROUP}'
+        command: sh -c 'exec /var/www/tmp/.docker/docker-entrypoint.sh'
         extra_hosts:
             - 'host.docker.internal:host-gateway'
         ports:
@@ -37,6 +38,35 @@ services:
             test: ["CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}"]
             retries: 3
             timeout: 5s
+    rabbitmq:
+        image: 'rabbitmq:4.2.5-management'
+        ports:
+            - '5672:5672'
+            - '15672:15672'
+        environment:
+            RABBITMQ_DEFAULT_USER: root
+            RABBITMQ_DEFAULT_PASS: pass
+        networks:
+            - main
+        healthcheck:
+            test: [ "CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+            interval: 5s
+            timeout: 5s
+            retries: 10
+    tgp-worker:
+        build:
+            context: .
+            dockerfile: ./.docker/Dockerfile
+            args:
+                WWWGROUP: '${WWWGROUP}'
+        command: php bin/worker.php
+        volumes:
+            - '.:/var/www/html'
+        networks:
+            - main
+        depends_on:
+            rabbitmq:
+                condition: service_healthy
     elasticsearch:
         image: 'docker.elastic.co/elasticsearch/elasticsearch:9.3.2'
         ports:

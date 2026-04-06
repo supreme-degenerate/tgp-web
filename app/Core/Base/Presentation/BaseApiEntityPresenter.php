@@ -35,24 +35,26 @@ abstract class BaseApiEntityPresenter extends BaseApiPresenter
      */
     public function actionGet(): void
     {
-        $repository = $this->getEntityRepository();
-
         if ($this->id) {
-            $entity = $repository->find($this->id);
-
-            if ($entity === null) {
-                $this->error('Entity not found', 404);
-            }
-
-            $this->sendJson(
-                $this->serializer->normalize($entity)
-            );
+            $this->sendJson($this->getDetail());
         }
 
-        $this->sendJson(
-            $this->serializer->normalize($repository->findAll())
-        );
+        $this->sendJson($this->getList());
     }
+
+    /**
+     * Handles get list API logic.
+     *
+     * @return mixed
+     */
+    protected abstract function getList(): mixed;
+
+    /**
+     * Handles get detail API logic.
+     *
+     * @return mixed
+     */
+    protected abstract function getDetail(): mixed;
 
     /**
      * @inheritDoc
@@ -62,7 +64,7 @@ abstract class BaseApiEntityPresenter extends BaseApiPresenter
         $data = $this->getData();
 
         if (!$data) {
-            $this->error('No data provided', 400);
+            $this->sendJsonError('No data provided');
         }
 
         $this->sendJson($this->create($data));
@@ -85,13 +87,11 @@ abstract class BaseApiEntityPresenter extends BaseApiPresenter
         $data = $this->getData();
 
         if (!$data) {
-            $this->error('No data provided', 400);
+            $this->sendJsonError('No data provided');
         }
 
-        $entity = $this->update($data);
-
         $this->sendJson(
-            $this->serializer->normalize($entity)
+            $this->update($data)
         );
     }
 

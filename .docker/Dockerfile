@@ -3,6 +3,7 @@ FROM php:8.4-apache
 ARG NODE_VERSION=18
 ENV WWWGROUP=1000
 ENV WWWUSER=1000
+ARG ENTRYPOINT
 
 # Install packages
 RUN apt-get update && apt-get install -y \
@@ -49,7 +50,8 @@ RUN docker-php-ext-install \
     pdo_mysql \
     gd \
     exif \
-    soap
+    soap \
+    sockets
 
 RUN pecl install --onlyreqdeps --force redis \
     && rm -rf /tmp/pear \
@@ -77,7 +79,7 @@ RUN cd /var/www/tmp && npm run build
 RUN cp -R /var/www/tmp/. /var/www/html/
 
 RUN chown -R www-data:www-data /var/www/html/temp /var/www/html/log && \
-    chmod -R 775 /var/www/html/temp /var/www/html/log \ && \
+    chmod -R 775 /var/www/html/temp /var/www/html/log && \
     chmod +x /var/www/html/bin/console
 
 WORKDIR /var/www/html
@@ -92,4 +94,3 @@ EXPOSE 80
 
 # Ensure the entrypoint file can be run
 RUN chmod +x /var/www/tmp/.docker/docker-entrypoint.sh
-ENTRYPOINT ["/var/www/tmp/.docker/docker-entrypoint.sh"]

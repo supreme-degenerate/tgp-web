@@ -9,6 +9,19 @@ services:
 	validator:
 		factory: @App\Core\Factory\ValidatorFactory::create
 
+	rabbitMqService:
+		factory: App\Core\Service\RabbitMqService(
+            host: %queue.rabbitmq.host%
+            port: %queue.rabbitmq.port%
+            user: %queue.rabbitmq.user%
+            password: %queue.rabbitmq.password%
+        )
+
+	elasticsearchClient:
+        factory: @App\Core\Factory\ElasticsearchClientFactory::create
+
+	elasticsearchService: App\Core\Service\ElasticsearchService
+
 search:
 	-	in: %appDir%
 		classes:

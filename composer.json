@@ -29,7 +29,10 @@
 		"contributte/validator": "^2.0",
 		"symfony/property-info": "^8.0",
 		"symfony/property-access": "^8.0",
-		"symfony/serializer": "^8.0"
+		"symfony/serializer": "^8.0",
+		"mockery/mockery": "^1.6",
+		"php-amqplib/php-amqplib": "^3.7",
+		"elasticsearch/elasticsearch": "^9.3"
 	},
 	"require-dev": {
 		"nette/tester": "^2.5",
@@ -43,6 +46,11 @@
 			"App\\": "app"
 		}
 	},
+	"autoload-dev": {
+		"psr-4": {
+			"Tests\\": "tests"
+		}
+	},
 	"scripts": {
 		"phpstan": "phpstan analyse",
 		"tester": "tester tests -s"
@@ -51,7 +59,8 @@
 	"config": {
 		"allow-plugins": {
 			"symfony/thanks": true,
-			"phpstan/extension-installer": true
+			"phpstan/extension-installer": true,
+			"php-http/discovery": true
 		}
 	}
 }

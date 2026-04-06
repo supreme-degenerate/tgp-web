@@ -7,6 +7,7 @@ use App\Database\Entity\Invoice\InvoiceItem;
 
 final class InvoiceItemResponse extends BaseResponse
 {
+    public int $id;
     public string $name;
     public float $pricePerUnit;
     public float $quantity;
@@ -15,6 +16,7 @@ final class InvoiceItemResponse extends BaseResponse
 
     public function __construct(InvoiceItem $item)
     {
+        $this->id = $item->getId();
         $this->name = $item->getName();
         $this->pricePerUnit = $item->getPricePerUnit();
         $this->quantity = $item->getQuantity();

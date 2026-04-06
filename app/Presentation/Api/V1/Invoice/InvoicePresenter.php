@@ -5,7 +5,10 @@ namespace App\Presentation\Api\V1\Invoice;
 use App\Core\Base\Presentation\BaseApiEntityPresenter;
 use App\Core\Dto\Invoice\InvoiceDto;
 use App\Core\Enum\InvoiceStatus;
+use App\Core\Enum\InvoiceStatusLogicException;
+use App\Core\Response\Invoice\InvoiceLogsResponse;
 use App\Core\Response\Invoice\InvoiceResponse;
+use App\Core\Service\RabbitMqService;
 use App\Database\Entity\Invoice\Invoice;
 use App\Service\Invoice\InvoiceService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -46,17 +49,54 @@ class InvoicePresenter extends BaseApiEntityPresenter
     /**
      * @inheritDoc
      */
+    protected function getList(): mixed
+    {
+        $repository = $this->getEntityRepository();
+
+        $entities = $repository->findAll();
+
+        $result = [];
+
+        foreach ($entities as $entity) {
+            $result[] = new InvoiceResponse($entity);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function getDetail(): mixed
+    {
+        $repository = $this->getEntityRepository();
+
+        $entity = $repository->find($this->id);
+
+        if ($entity === null) {
+            $this->sendJsonError('Entity not found');
+        }
+
+        return new InvoiceResponse($entity);
+    }
+
+    /**
+     * @inheritDoc
+     */
     protected function create(array $data): mixed
     {
         $dto = $this->serializer->denormalize($data, $this->getEntityDto());
         $errors = $this->validator->validate($dto);
 
         if (count($errors) > 0) {
-            $this->sendJson([
-                'errors' => $this->serializer->normalize($errors),
-            ]);
+            $this->sendJsonError($this->serializer->normalize($errors));
         }
 
+        /**
+         * TODO publish a new message to RabbitMqService for async processing
+         *
+         * @see RabbitMqService
+         */
         $invoice = $this->invoiceService->createFromDto($dto);
 
         return new InvoiceResponse($invoice);
@@ -71,18 +111,21 @@ class InvoicePresenter extends BaseApiEntityPresenter
         $errors = $this->validator->validate($dto);
 
         if (count($errors) > 0) {
-            $this->sendJson([
-                'errors' => $this->serializer->normalize($errors),
-            ]);
+            $this->sendJsonError($this->serializer->normalize($errors));
         }
 
         $invoiceRepository = $this->em->getRepository($this->getEntity());
         $invoice = $invoiceRepository->find($this->id);
 
         if (!$invoice) {
-            $this->error('Entity not found', 404);
+            $this->sendJsonError('Entity not found');
         }
 
+        /**
+         * TODO publish a new message to RabbitMqService for async processing
+         *
+         * @see RabbitMqService
+         */
         $invoice = $this->invoiceService->updateFromDto($invoice, $dto);
 
         return new InvoiceResponse($invoice);
@@ -97,12 +140,14 @@ class InvoicePresenter extends BaseApiEntityPresenter
     }
 
     /**
-     * @inheritDoc
+     * Actions for invoice status change.
+     *
+     * @return void
      */
     public function actionStatus(): void
     {
         if ($this->getRequest()->getMethod() !== 'PUT') {
-            $this->error('Method Not Allowed', 405);
+            $this->sendJsonError('Method Not Allowed');
         }
 
         $data = $this->getData();
@@ -112,17 +157,41 @@ class InvoicePresenter extends BaseApiEntityPresenter
         $invoice = $invoiceRepository->find($id);
 
         if (!$invoice) {
-            $this->error('Entity not found', 404);
+            $this->sendJsonError('Entity not found');
         }
 
         try {
             $invoiceStatus = InvoiceStatus::from($data['status']);
-        } catch (ValueError $e) {
-            $this->error('Invalid status', 400);
+        } catch (ValueError) {
+            $this->sendJsonError('Invalid status ' . $data['status']);
         }
 
-        $invoice = $this->invoiceService->updateInvoiceStatus($invoice, $invoiceStatus);
+        try {
+            /**
+             * TODO publish a new message to RabbitMqService for async processing
+             *
+             * @see RabbitMqService
+             */
+            $invoice = $this->invoiceService->updateInvoiceStatus($invoice, $invoiceStatus);
+        } catch (InvoiceStatusLogicException $e) {
+            $this->sendJsonError($e->getMessage());
+        }
 
         $this->sendJson(new InvoiceResponse($invoice));
+    }
+
+    /**
+     * Action for invoice logs.
+     *
+     * @return void
+     */
+    public function actionLogs(): void
+    {
+        $id = $this->getParameter('id');
+
+        $invoiceRepository = $this->em->getRepository($this->getEntity());
+        $invoice = $invoiceRepository->find($id);
+
+        $this->sendJson(new InvoiceLogsResponse($invoice));
     }
 }

@@ -20,11 +20,27 @@ final class Version20260326204337 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
+        // Addresses
+        $table = $schema->createTable('addresses');
+        $table->addColumn('id', 'integer', ['autoincrement' => true]);
+        $table->addColumn('address_line_1', 'string', ['length' => 255]);
+        $table->addColumn('address_line_2', 'string', ['length' => 255, 'notnull' => false]);
+        $table->addColumn('city', 'string', ['length' => 255]);
+        $table->addColumn('state', 'string', ['length' => 255, 'notnull' => false]);
+        $table->addColumn('postal_code', 'string', ['length' => 20]);
+        $table->addColumn('country', 'string', ['length' => 255]);
+
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()->setUnquotedColumnNames('id')->create()
+        );
+
         // Invoices
         $table = $schema->createTable('invoices');
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
         $table->addColumn('invoice_number', 'string', ['length' => 10]);
         $table->addColumn('status', 'integer');
+        $table->addColumn('shipping_address_id', 'integer');
+        $table->addColumn('billing_address_id', 'integer');
         $table->addColumn('due_date', 'datetime');
         $table->addColumn('raised_at', 'datetime');
         $table->addColumn('raised_by', 'integer');
@@ -73,6 +89,7 @@ final class Version20260326204337 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
+        $schema->dropTable('addresses');
         $schema->dropTable('invoices');
         $schema->dropTable('invoice_number_sequence');
         $schema->dropTable('invoice_items');
