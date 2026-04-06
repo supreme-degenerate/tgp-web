@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Dotenv\Dotenv;
 use Nette;
 use Nette\Bootstrap\Configurator;
 
@@ -10,14 +11,15 @@ class Bootstrap
     private readonly Configurator $configurator;
     private readonly string $rootDir;
 
-
     public function __construct()
     {
+        $dotenv = Dotenv::createImmutable(__DIR__ . '/../');
+        $dotenv->load();
+
         $this->rootDir = dirname(__DIR__);
         $this->configurator = new Configurator;
         $this->configurator->setTempDirectory($this->rootDir . '/temp');
     }
-
 
     public function bootWebApplication(): Nette\DI\Container
     {
@@ -26,9 +28,12 @@ class Bootstrap
         return $this->configurator->createContainer();
     }
 
-
     public function initializeEnvironment(): void
     {
+        $this->configurator->addStaticParameters([
+            'env' => $_ENV,
+        ]);
+
         $this->configurator->setDebugMode(true);
         $this->configurator->enableTracy($this->rootDir . '/log');
 
@@ -37,10 +42,10 @@ class Bootstrap
             ->register();
     }
 
-
     private function setupContainer(): void
     {
         $configDir = $this->rootDir . '/config';
+
         $this->configurator->addConfig($configDir . '/common.neon');
         $this->configurator->addConfig($configDir . '/services.neon');
         $this->configurator->addConfig($configDir . '/doctrine.neon');

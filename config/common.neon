@@ -1,15 +1,16 @@
 # see https://doc.nette.org/en/configuring
 
 parameters:
-    debugMode: '%env(APP_DEBUG_MODE)%'
+    debugMode: %env.APP_DEBUG_MODE%
     database:
         mysql:
-            dsn: '%env(DB_DSN)'
-            host: '%env(DB_HOST)'
-            port: '%env(DB_PORT)'
-            database: '%env(DB_DATABASE)'
-            user: '%env(DB_USER)'
-            password: '%env(DB_PASSWORD)'
+            dsn: %env.DB_DSN%
+            driver: %env.DB_DRIVER%
+            host: %env.DB_HOST%
+            port: %env.DB_PORT%
+            database: %env.DB_DATABASE%
+            user: %env.DB_USERNAME%
+            password: %env.DB_PASSWORD%
 
 application:
 	errorPresenter:

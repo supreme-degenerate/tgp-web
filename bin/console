@@ -1,0 +1,13 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+require __DIR__ . '/../vendor/autoload.php';
+
+$configurator = new App\Bootstrap();
+$container = $configurator->bootWebApplication();
+
+/** @var Symfony\Component\Console\Application $app */
+$app = $container->getByType(Symfony\Component\Console\Application::class);
+$app->run();

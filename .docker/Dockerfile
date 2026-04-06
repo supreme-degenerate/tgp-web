@@ -77,7 +77,8 @@ RUN cd /var/www/tmp && npm run build
 RUN cp -R /var/www/tmp/. /var/www/html/
 
 RUN chown -R www-data:www-data /var/www/html/temp /var/www/html/log && \
-    chmod -R 775 /var/www/html/temp /var/www/html/log
+    chmod -R 775 /var/www/html/temp /var/www/html/log \ && \
+    chmod +x /var/www/html/bin/console
 
 WORKDIR /var/www/html
 

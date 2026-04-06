@@ -20,7 +20,12 @@
 		"nette/utils": "^4.0",
 		"latte/latte": "^3.1",
 		"tracy/tracy": "^2.10",
-		"nettrine/orm": "^0.10.1"
+		"nettrine/orm": "^0.10.1",
+		"nettrine/migrations": "^0.10.1",
+		"contributte/console": "^0.11.0",
+		"vlucas/phpdotenv": "^5.6",
+		"symfony/var-exporter": "^7.0",
+		"symfony/serializer-pack": "^1.4"
 	},
 	"require-dev": {
 		"nette/tester": "^2.5",
