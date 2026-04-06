@@ -64,7 +64,7 @@ final class Version20260326204337 extends AbstractMigration
         $table->addColumn('old_value', 'string', ['length' => 255]);
         $table->addColumn('new_value', 'string', ['length' => 255]);
         $table->addColumn('changed_at', 'datetime');
-        $table->addColumn('changed_by', 'datetime');
+        $table->addColumn('changed_by', 'integer');
 
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()->setUnquotedColumnNames('id')->create()

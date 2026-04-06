@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Database\Model\Repository\Invoice;
+namespace App\Database\Repository\Invoice;
 
-use App\Core\Base\Repository\BaseRepository;
+use App\Core\Base\Database\BaseRepository;
 use App\Database\Entity\Invoice\Invoice;
 use Doctrine\ORM\EntityManagerInterface;
 

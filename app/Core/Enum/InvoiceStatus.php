@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Database\Model\Repository\Invoice;
+namespace App\Core\Enum;
 
 enum InvoiceStatus: int
 {
     case CREATED = 1;
     case PAID = 2;
-    case CANCELLED = 3;
+    case CANCELED = 3;
     case REFUNDED = 4;
 
     /**
@@ -19,7 +19,7 @@ enum InvoiceStatus: int
         return match ($this) {
             self::CREATED => 'Created',
             self::PAID => 'Paid',
-            self::CANCELLED => 'Cancelled',
+            self::CANCELED => 'Canceled',
             self::REFUNDED => 'Refunded',
         };
     }

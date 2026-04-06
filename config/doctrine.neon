@@ -23,8 +23,6 @@ nettrine.orm:
 	managers:
 		default:
 			connection: default
-			resolveTargetEntities:
-			    App\Database\Model\Repository\Invoice\InvoiceInterface: App\Database\Entity\Invoice\Invoice
 			mapping:
 				App:
 					directories: [%appDir%/Database/Entity]

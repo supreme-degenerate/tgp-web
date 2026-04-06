@@ -18,7 +18,8 @@ final class RouterFactory
 
         $router->withModule('Api:V1')
             ->withPath('api/')
-            ->addRoute('invoice[/<id \d+>]', 'Invoice:default');
+            ->addRoute('invoice[/<id \d+>]', 'Invoice:default')
+            ->addRoute('invoice/<id \d+>/status', 'Invoice:status');
 
         // Common
 

@@ -25,7 +25,11 @@
 		"contributte/console": "^0.11.0",
 		"vlucas/phpdotenv": "^5.6",
 		"symfony/var-exporter": "^7.0",
-		"symfony/serializer-pack": "^1.4"
+		"symfony/serializer-pack": "^1.4",
+		"contributte/validator": "^2.0",
+		"symfony/property-info": "^8.0",
+		"symfony/property-access": "^8.0",
+		"symfony/serializer": "^8.0"
 	},
 	"require-dev": {
 		"nette/tester": "^2.5",

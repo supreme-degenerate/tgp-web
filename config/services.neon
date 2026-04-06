@@ -2,17 +2,19 @@ services:
 	- App\Core\RouterFactory::createRouter
 	- Symfony\Component\Serializer\Normalizer\ObjectNormalizer
 	- Symfony\Component\Serializer\Encoder\JsonEncoder
+
 	serializer:
-		factory: Symfony\Component\Serializer\Serializer(
-			[@Symfony\Component\Serializer\Normalizer\ObjectNormalizer],
-			[@Symfony\Component\Serializer\Encoder\JsonEncoder]
-		)
+		factory: @App\Core\Factory\SerializerFactory::create
+
+	validator:
+		factory: @App\Core\Factory\ValidatorFactory::create
 
 search:
 	-	in: %appDir%
 		classes:
 			- *Facade
 			- *Factory
+			- *Generator
 			- *Repository
 			- *Service
 			- *Subscriber

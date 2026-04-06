@@ -2,10 +2,24 @@
 
 namespace App\Core\Base\Presentation;
 
+use Doctrine\ORM\EntityManagerInterface;
+use Nette\Application\BadRequestException;
+use Nette\Utils\Json;
+use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+
 abstract class BaseApiPresenter extends BasePresenter
 {
     /** @var ?int $id ID of the entity */
     protected ?int $id;
+
+    public function __construct(
+        protected EntityManagerInterface $em,
+        protected SerializerInterface $serializer,
+        protected ValidatorInterface $validator
+    ) {
+        parent::__construct();
+    }
 
     /**
      * Default API action.
@@ -23,22 +37,28 @@ abstract class BaseApiPresenter extends BasePresenter
         // TODO custom id names
         $this->id = $this->getParameter('id');
 
-        switch (strtoupper($method)) {
-            case 'GET':
-                $this->actionGet();
-                break;
-            case 'POST':
-                $this->actionPost();
-                break;
-            case 'UPDATE':
-                $this->actionUpdate();
-                break;
-            case 'DELETE':
-                $this->actionDelete();
-                break;
-        }
+        try {
+            switch (strtoupper($method)) {
+                case 'GET':
+                    $this->actionGet();
+                    break;
+                case 'POST':
+                    $this->actionPost();
+                    break;
+                case 'PUT':
+                    $this->actionPut();
+                    break;
+                case 'DELETE':
+                    $this->actionDelete();
+                    break;
+            }
 
-        throw new ApiUnsupportedMethod($method);
+            throw new ApiUnsupportedMethod($method);
+        } catch (ApiPresenterMethodNotImplemented|BadRequestException $e) {
+            $this->sendJson([
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     /**
@@ -48,7 +68,7 @@ abstract class BaseApiPresenter extends BasePresenter
      */
     public function actionGet(): void
     {
-        throw new ApiPresenterMethodNotImplemented('GET');
+        throw new ApiPresenterMethodNotImplemented('GET not implemented');
     }
 
     /**
@@ -60,19 +80,19 @@ abstract class BaseApiPresenter extends BasePresenter
      */
     public function actionPost(): void
     {
-        throw new ApiPresenterMethodNotImplemented('POST');
+        throw new ApiPresenterMethodNotImplemented('POST not implemented');
     }
 
     /**
-     * Action handling UPDATE request.
+     * Action handling PUT request.
      *
      * @return void
      *
      * @throws ApiPresenterMethodNotImplemented
      */
-    public function actionUpdate(): void
+    public function actionPut(): void
     {
-        throw new ApiPresenterMethodNotImplemented('UPDATE');
+        throw new ApiPresenterMethodNotImplemented('PUT not implemented');
     }
 
     /**
@@ -84,6 +104,16 @@ abstract class BaseApiPresenter extends BasePresenter
      */
     public function actionDelete(): void
     {
-        throw new ApiPresenterMethodNotImplemented('DELETE');
+        throw new ApiPresenterMethodNotImplemented('DELETE not implemented');
+    }
+
+    /**
+     * Returns HTTP's JSON data.
+     *
+     * @return array
+     */
+    protected function getData(): array
+    {
+        return Json::decode($this->getHttpRequest()->getRawBody(), true);
     }
 }

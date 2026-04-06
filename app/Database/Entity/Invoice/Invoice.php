@@ -3,15 +3,18 @@
 namespace App\Database\Entity\Invoice;
 
 use App\Core\Base\Database\BaseEntity;
-use App\Database\Model\Repository\Invoice\InvoiceInterface;
-use App\Database\Model\Repository\Invoice\InvoiceRepository;
-use App\Database\Model\Repository\Invoice\InvoiceStatus;
+use App\Core\Enum\InvoiceStatus;
+use App\Database\Repository\Invoice\InvoiceRepository;
 use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: InvoiceRepository::class)]
 #[ORM\Table(name: 'invoices')]
-class Invoice extends BaseEntity implements InvoiceInterface
+#[ORM\HasLifecycleCallbacks]
+class Invoice extends BaseEntity
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -33,6 +36,17 @@ class Invoice extends BaseEntity implements InvoiceInterface
     #[ORM\Column(type: 'integer')]
     protected int $raisedBy;
 
+    #[ORM\OneToMany(targetEntity: InvoiceItem::class, mappedBy: 'invoice', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[Groups(['invoice:read'])]
+    protected Collection $items;
+
+    public function __construct()
+    {
+        $this->items = new ArrayCollection();
+    }
+
+    // Getters
+
     public function getId(): int
     {
         return $this->id;
@@ -40,16 +54,91 @@ class Invoice extends BaseEntity implements InvoiceInterface
 
     public function getInvoiceNumber(): string
     {
-        return $this->invoiceNumber;
+        return $this->invoiceNumber ?? '';
     }
 
-    public function getStatus(): int
+    public function getStatus(): InvoiceStatus
     {
-        return $this->status->value;
+        return $this->status;
     }
 
     public function getStatusName(): string
     {
         return $this->status->getLabel();
+    }
+
+    public function getDueDate(): DateTime
+    {
+        return $this->dueDate;
+    }
+
+    public function getRaisedAt(): DateTime
+    {
+        return $this->raisedAt;
+    }
+
+    public function getRaisedBy(): int
+    {
+        return $this->raisedBy;
+    }
+
+    public function getItems(): Collection
+    {
+        return $this->items;
+    }
+
+    // Setters
+
+    public function setInvoiceNumber(string $invoiceNumber): self
+    {
+        $this->invoiceNumber = $invoiceNumber;
+
+        return $this;
+    }
+
+    public function setStatus(InvoiceStatus $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function setDueDate(DateTime $dueDate): self
+    {
+        $this->dueDate = $dueDate;
+
+        return $this;
+    }
+
+    public function setRaisedAt(DateTime $raisedAt): self
+    {
+        $this->raisedAt = $raisedAt;
+
+        return $this;
+    }
+
+    public function setRaisedBy(int $raisedBy): self
+    {
+        $this->raisedBy = $raisedBy;
+
+        return $this;
+    }
+
+    public function addItem(InvoiceItem $item): self
+    {
+        if (!$this->items->contains($item)) {
+            $this->items->add($item);
+
+            $item->setInvoice($this);
+        }
+
+        return $this;
+    }
+
+    public function removeItem(InvoiceItem $item): self
+    {
+        $this->items->removeElement($item);
+
+        return $this;
     }
 }
