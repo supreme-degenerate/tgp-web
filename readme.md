@@ -14,9 +14,11 @@ Projekt používá environment proměnné, které je potřeba mít v rootu (při
 Spuštění:
 ------------
 
-Stačí zadat v příkazové řádce `docker compose up` v rootu projektu.
+1) Stačí zadat v příkazové řádce `docker compose up` v rootu projektu.
 
-Migrace by se měly spustit automaticky v entrypointu service `tgp-web` (manuální spuštění `php bin/console migrations:migrate`).
+2) Pak spustit migrace manuálně `php bin/console migrations:migrate` (mělo se pouštět automaticky přes entrypoint, ale je tam problém).
+
+Jinak věřím, že to pojede hezky.
 
 *Pro less storage usage posílám projekt bez `node_modules` a `vendor`.*
 
