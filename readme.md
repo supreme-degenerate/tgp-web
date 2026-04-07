@@ -16,9 +16,7 @@ Spuštění:
 
 1) Stačí zadat v příkazové řádce `docker compose up` v rootu projektu.
 
-2) Pak spustit migrace manuálně `php bin/console migrations:migrate` (mělo se pouštět automaticky přes entrypoint, ale je tam problém).
-
-Jinak věřím, že to pojede hezky.
+*Kdyby z nějakého důvodu nefungovaly automatické migrace z entrypointu, tak se musí změnit v .env `DB_HOST` na `localhost` a spustit `php bin/console migrations:migrate`. Po migraci vrátit `DB_HOST` na `mysql`.*
 
 *Pro less storage usage posílám projekt bez `node_modules` a `vendor`.*
 
