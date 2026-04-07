@@ -1,64 +1,157 @@
-Nette Web Project
+TGP WEB - by Filip Heyduk
 =================
 
-Welcome to the Nette Web Project! This is a basic skeleton application built using
-[Nette](https://nette.org), ideal for kick-starting your new web projects.
+Připravil jsem řešení dle zadání Invoice Management API.
 
-Nette is a renowned PHP web development framework, celebrated for its user-friendliness,
-robust security, and outstanding performance. It's among the safest choices
-for PHP frameworks out there.
+Technologie - PHP 8.4+, Nette Framework, Doctrine ORM (Nettrine SDK), MySQL (8.0+)
 
-If Nette helps you, consider supporting it by [making a donation](https://nette.org/donate).
-Thank you for your generosity!
+AI při vývoji - aktivně používám inteligentní našeptávání pro ulehčení práce
 
+Napsal jsem si vlastní API presenter, který handluje jednoduché chování pro RESTové endpointy. Některé věci jsou záměrně napsány zjednodušenou formou.
 
-Requirements
+Projekt používá environment proměnné, které je potřeba mít v rootu (přiložím v rámci ZIPu).
+
+Spuštění:
 ------------
 
-This Web Project is compatible with Nette 3.2 and requires PHP 8.2.
+Stačí zadat `docker compose up`.
 
+*Pro storage issue posílám projekt bez `node_modules` a `vendor`.*
 
-Installation
+Povinné úkoly:
 ------------
 
-To install the Web Project, Composer is the recommended tool. If you're new to Composer,
-follow [these instructions](https://doc.nette.org/composer). Then, run:
+------------
+1) Číselná řada faktur
+------------
 
-	composer create-project nette/web-project path/to/install
-	cd path/to/install
+Každá faktura si generuje nový `invoiceNumber` dle sekvence `InvoiceNumberSequence` a to ve formátu `2026000001`. Poslední záznam si bere ze sekvenční tabulky `invoice_number_sequence`.
 
-Ensure the `temp/` and `log/` directories are writable.
+------------
+2) REST API endpointy
+------------
 
+`GET http://localhost/api/invoice` - vrátí list faktur
 
-Asset Building with Vite
-------------------------
+`GET http://localhost/api/invoice/{id}` - vrátí detail faktury
 
-This project supports Vite for asset building, which is recommended but optional. To activate Vite:
+`POST http://localhost/api/invoice` - vytvoří novou fakturu (všechny properties Invoice)
 
-1. Uncomment the `type: vite` line in the `common.neon` configuration file under the assets mapping section.
-2. Then set up and build the assets:
+JSON raw input:
 
-		npm install
-		npm run build
+```
+{
+  "shippingAddress": {
+    "addressLine1": "Slavíkova",
+    "addressLine2": "555",
+    "city": "Ostrava",
+    "postalCode": "70800",
+    "country": "Česká republika"
+  },
+  "billingAddress": {
+    "addressLine1": "Slavíkova",
+    "addressLine2": "666",
+    "city": "Praha",
+    "postalCode": "70800",
+    "country": "Česká republika"
+  },
+  "dueDate": "2026-12-04",
+  "items": [
+    {
+      "name": "Produkt 1",
+      "pricePerUnit": 120.0,
+      "currency": "CZK",
+      "quantity": 1
+    },
+    {
+      "name": "Produkt 2",
+      "pricePerUnit": 50.0,
+      "currency": "CZK",
+      "quantity": 2
+    }
+  ]
+}
+```
 
+`PUT http://localhost/api/invoice/{id}` - upraví stávající fakturu (pouze dueDate)
 
-Web Server Setup
-----------------
+JSON raw input:
 
-To quickly dive in, use PHP's built-in server:
+```
+{
+  "dueDate": "2026-11-06"
+}
+```
 
-	php -S localhost:8000 -t www
+`PUT http://localhost/api/invoice/{id}/status` - změní stav faktury
 
-Then, open `http://localhost:8000` in your browser to view the welcome page.
+JSON raw input:
 
-For Apache or Nginx users, configure a virtual host pointing to your project's `www/` directory.
+```
+{
+  "status": 3
+}
+```
 
-**Important Note:** Ensure `app/`, `config/`, `log/`, and `temp/` directories are not web-accessible.
-Refer to [security warning](https://nette.org/security-warning) for more details.
+`GET http://localhost/api/invoice/{id}/logs` - vrátí list logů pro danou fakturu
 
+Změny na faktuře se automaticky logují při každém flushi `Invoice` (na faktuře lze upravovat dueDate a status, takže lze spatřit pouze tyto změny). Loguje se v `InvoiceSubscriber`.
 
-Minimal Skeleton
-----------------
+------------
+3) Stavy faktury a povolené přechody
+------------
 
-For demonstrating issues or similar tasks, rather than starting a new project, use
-[minimal skeleton](https://github.com/nette/web-project/tree/minimal).
+Logika povolených přechodů stavů faktury lze najít přímo v Enumu `InvoiceStatus`.
+
+Přechod stavu se kontroluje automaticky před flushem `Invoice`.
+
+------------
+4) Externí služby
+------------
+
+Přidal jsem do tohoto řešení služby:
+
+a) `mysql` - klasická relační databáze
+
+b) `rabbitmq` (částečná implementace) - ukázka o povědomí async front
+
+c) `tgp-worker` (částečná implementace) - worker zpracovávájící queue (invoice_queue) pro invoice service a elasticsearch
+
+d) `elasticsearch` (částečná implementace) - ukázka o povědomí fulltext vyhledávání a automatické indexace
+
+e) `kibana` - náhled do elasticu
+
+f) `redis` - kdyby bylo potřeba zrychlit
+
+Nepovinné úkoly:
+------------
+
+------------
+1) Endpoint pro changelog faktury
+------------
+
+`GET http://localhost/api/invoice/{id}/logs` - vrátí list logů pro danou fakturu
+
+Seřazený od poslední změny. Automaticky generovaná property `message` pro lepší čitelnost změny.
+
+------------
+2) Unit testy
+------------
+
+Použil jsem zabudovaný Tester od Nette pro tyto dva jednodušší testy.
+
+`Unit\InvoiceNumberGeneratorTest` - test správného generování čísla faktur
+
+`Unit\InvoiceStatusChangeTest` - test logiky přechodů stavů faktur
+
+------------
+3) Docker
+------------
+
+Celý projekt běží v Docker prostředí a je tak ready pro Kubernetes nasazování a škálování.
+
+------------
+4) Implementace napojení služeb
+------------
+
+Všechny služby, které v řešení používám, jsou plně integrované jako services v Dockeru a připravené na použití v aplikaci.

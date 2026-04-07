@@ -85,7 +85,7 @@ class InvoiceSubscriber implements EventSubscriber
 
     public function postFlush(PostFlushEventArgs $args): void
     {
-        // TODO create new message for RabbitMQ add/update/remove a new invoice document for Elasticsearch
+        // TODO create new message for RabbitMQ to add/update/remove an invoice document for Elasticsearch service
         // ...
     }
 }
